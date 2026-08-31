@@ -60,7 +60,7 @@ const EXPECTED_FUNCTION_HASHES: Record<string, string> = {
   getOpsxBulkArchiveCommandTemplate: '9fa8cdebe2f5667ebfc37bdc023396762c59d5b038c771dac2d8fd2c19e2627b',
   getOpsxVerifyCommandTemplate: '1efcf7eff0671f48e9d9420f50865c563dd3079ee60f8c380bb7a90dd0102696',
   getOpsxProposeSkillTemplate: '63b80eb0ef9bb40860736ff97021551c5df319fcd8c93f48163ce308d0ffce3a',
-  getAutonomousApplySkillTemplate: '1bbe74bb3cc6cfcdf663057ead666fa1f1d89b0b617de05bb1bcf10739d3ac2d',
+  getAutonomousApplySkillTemplate: '245cb2055c8f73873b863442af367d7fb0b8f698e772610f383c6cdc787bc87a',
   getOpsxProposeCommandTemplate: 'd9c79d2a787698a1bfd2a5c9d30bb1a11b1136e638c8854544004cd054fb0455',
   getFeedbackSkillTemplate: 'dabeb5e825b9349abc8156c3e7b8608f27987912a6d9bf47ef29addde6138133',
   getUpdateChangeSkillTemplate: '7dc8abc6f64c58bf34d7581ed4ab095a3b7a53cb372349bee2d840db58622819',
@@ -68,7 +68,7 @@ const EXPECTED_FUNCTION_HASHES: Record<string, string> = {
 };
 
 const EXPECTED_GENERATED_SKILL_CONTENT_HASHES: Record<string, string> = {
-  'openspec-autonomous-apply': 'bca5ff92c769cd52b7cfa3bafb5c25377164e272cc5af00bc025585c01e46a7b',
+  'openspec-autonomous-apply': 'ab5b5ac911169da33b0b12f826b99288cbb41419facf9af93ea0e1ce4b9503c6',
   'openspec-explore': '886680e71f2900378bd12bb9ff25c888a41a8f851e0bb3ec056affcc18d07ca8',
   'openspec-new-change': 'ec4529beef978e34634a6f7286fab55d68fad8fb374dceb45691d52caab33fbb',
   'openspec-continue-change': 'bb6194a16c54891cdb253678e8f70ce53b2af86735243980f366ce551d37e42e',

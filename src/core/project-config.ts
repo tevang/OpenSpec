@@ -84,12 +84,12 @@ export const ProjectConfigSchema = z.object({
     .optional()
     .describe('GitHub Copilot integration preferences'),
 
-  // Optional: autonomous-apply agent runtime settings. `maxParallelRequests`
+  // Optional: autonomous-apply agent runtime settings. `max_parallel_requests`
   // caps concurrent LLM API calls from parallel subagents / Workflow fan-out;
   // default 2, permitted range 1..4 (e-INFRA LiteLLM gateway hard limit).
   agent: z
     .object({
-      maxParallelRequests: z
+      max_parallel_requests: z
         .number()
         .int()
         .min(1)
@@ -409,6 +409,29 @@ export function readProjectConfig(projectRoot: string): ProjectConfig | null {
         }
       } else {
         console.warn(`Invalid 'githubCopilot' field in config (must be an object)`);
+      }
+    }
+
+    // Parse autonomous-apply agent settings.
+    if (raw.agent !== undefined) {
+      if (
+        typeof raw.agent === 'object' &&
+        raw.agent !== null &&
+        !Array.isArray(raw.agent)
+      ) {
+        const mpr = (raw.agent as Record<string, unknown>).max_parallel_requests;
+        if (mpr !== undefined) {
+          const mprResult = z.number().int().min(1).max(4).safeParse(mpr);
+          if (mprResult.success) {
+            config.agent = { max_parallel_requests: mprResult.data };
+          } else {
+            console.warn(
+              `Invalid 'agent.max_parallel_requests' field in config (must be an integer 1-4); autonomous-apply will use the default cap of 2`
+            );
+          }
+        }
+      } else {
+        console.warn(`Invalid 'agent' field in config (must be an object)`);
       }
     }
 

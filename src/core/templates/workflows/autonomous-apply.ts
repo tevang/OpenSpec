@@ -37,13 +37,14 @@ ${STORE_SELECTION_GUIDANCE}
 
 ---
 
-## Seven Phases (run in strict order; skip only explicitly deliberately-skipped phases)
+## Eight Phases (run in strict order; skip only explicitly deliberately-skipped phases)
 
 ### Phase 1 — Preflight
 
 1. Resolve the active change:
-   - Run \`openspec status --json\` and find the change(s) with \`status: "in-progress"\`.
+   - Run \`openspec list --json\` and find the change(s) with unfinished tasks (task count below total, or offered by the user).
    - If exactly one → use it. If multiple → ask user which one. If none → stop: "Run \`/opsx:propose\` first."
+   - **Sanity-check the change name before any path/shell use**: it must match \`^[a-z0-9][a-z0-9-]*[a-z0-9]?$\` (kebab-case, max 64 chars). Reject anything else (spaces, slashes, dots, backticks, shell metacharacters) and stop — change names flow into paths and branch names below.
 2. Read change artifacts from \`openspec/changes/<change-name>/\`: \`proposal.md\`, \`tasks.md\`, all \`specs/*/spec.md\`, \`design.md\` (if present).
 3. Read \`openspec/config.yaml\` for \`agent.max_parallel_requests\`. If absent note that Phase 3's first review/merge prompt will ask the concurrency question.
 4. Verify repository state:
@@ -55,15 +56,16 @@ ${STORE_SELECTION_GUIDANCE}
 
 1. Base branch: current branch (usually \`main\`).
 2. Create feature branch \`feat/<change-name>\` (if not exists).
-3. Create worktree at \`.claude/worktrees/openspec-<change-name>/\`:
+3. Pick a host-appropriate worktree root: \`.claude/worktrees/\` on Claude Code, \`.agents/worktrees/\` on Codex, \`.opencode/worktrees/\` on OpenCode (match the host's own skill directory convention so its tooling does not treat the path as another assistant's private cache).
+4. Create worktree at \`<worktree-root>/openspec-<change-name>/\`:
    \`\`\`bash
-   git worktree add .claude/worktrees/openspec-<change-name>/ -b feat/<change-name>
+   git worktree add <worktree-root>/openspec-<change-name>/ -b feat/<change-name>
    \`\`\`
-4. Record the worktree path in a scratch file \`.claude/worktrees/openspec-<change-name>/.openspec-autonomous.json\`:
+5. Record the worktree path in a scratch file \`<worktree-root>/openspec-<change-name>/.openspec-autonomous.json\`:
    \`\`\`json
    { "change": "<change-name>", "branch": "feat/<change-name>", "max_parallel_requests": 2, "created_at": "..." }
    \`\`\`
-5. If worktree creation fails → document container fallback (\`Container.md\` pattern) and stop unless user approves proceeding read-only.
+6. If worktree creation fails → document container fallback (\`Container.md\` pattern) and stop unless user approves proceeding read-only.
 
 ### Phase 3 — Apply in Worktree
 
@@ -115,9 +117,9 @@ After Phase 4's clean run (or after Phase 3 if no reference run is defined):
 ### Phase 6 — Verification
 
 \`\`\`bash
-openspec verify <change-name>
+openspec validate <change-name>
 \`\`\`
-Must return clean. If it fails, feed errors back to Phase 5 fix loop. Stop asking for user confirmation until verify is clean.
+Must return clean. If it fails, feed errors back to the Phase 5 fix loop. Do not proceed to Phase 7 until validation is clean.
 
 ### Phase 7 — Interactive Review and Merge Decision
 
