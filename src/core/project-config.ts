@@ -83,6 +83,24 @@ export const ProjectConfigSchema = z.object({
     })
     .optional()
     .describe('GitHub Copilot integration preferences'),
+
+  // Optional: autonomous-apply agent runtime settings. `maxParallelRequests`
+  // caps concurrent LLM API calls from parallel subagents / Workflow fan-out;
+  // default 2, permitted range 1..4 (e-INFRA LiteLLM gateway hard limit).
+  agent: z
+    .object({
+      maxParallelRequests: z
+        .number()
+        .int()
+        .min(1)
+        .max(4)
+        .optional()
+        .describe(
+          'Cap on concurrent LLM API requests from parallel subagents or Workflow fan-out; default 2, max 4 (e-INFRA hard limit)'
+        ),
+    })
+    .optional()
+    .describe('Autonomous-apply agent runtime settings'),
 });
 
 /** Normalized in-memory shape of a referenced store declaration. */

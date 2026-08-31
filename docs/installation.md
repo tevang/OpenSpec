@@ -161,6 +161,18 @@ Or add to your development environment in `flake.nix`:
 openspec --version
 ```
 
+## Assistant-Specific Guides
+
+Once the base install is in place, pick the guide for the AI assistant you actually use to learn how each tool exposes OpenSpec — including `/openspec-autonomous-apply`, `/opsx:autonomous-apply`, and the Codex/OpenCode-specific discipline notes:
+
+- [Claude Code](install-claude-code.md) — `/openspec-autonomous-apply`, `.claude/skills/`, worktree isolation via `Agent(isolation="worktree")`
+- [Codex](install-codex.md) — `openspec-autonomous-apply`, `.agents/skills/`, manual worktree discipline, chunked subagent cap
+- [OpenCode](install-opencode.md) — `/opsx:autonomous-apply`, `.opencode/skills/`, `opencode.json` skills path registration, manual worktree discipline
+
+>**When to use autonomous-apply vs standard apply**: use the standard `/opsx:propose` + `/opsx:apply` flow for one-shot, human-reviewed implementation of small changes. Use `/openspec-autonomous-apply` (or the equivalent per-assistant name) when you want the full loop — worktree sandboxing, bounded-concurrency implementation, a reference-run validation loop against a real dataset/command, local multi-agent review, and an interactive review-mode/merge-strategy gate — for medium-to-large changes. The two flows are not mutually exclusive; you can start with standard apply and rerun the same change with autonomous-apply if verification surfaces problems.
+
+The assistant-specific guides also document the `agent.maxParallelRequests` configuration (default 2, hard maximum 4 for e-INFRA API users).
+
 ## Updating
 
 Upgrade the package, then refresh each project's generated files:
