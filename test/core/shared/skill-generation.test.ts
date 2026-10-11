@@ -37,6 +37,7 @@ describe('skill-generation', () => {
       expect(dirNames).toContain('openspec-onboard');
       expect(dirNames).toContain('openspec-propose');
       expect(dirNames).toContain('openspec-autonomous-apply');
+      expect(dirNames).toContain('openspec-multi-model-apply');
     });
 
     it('should have valid template structure', () => {

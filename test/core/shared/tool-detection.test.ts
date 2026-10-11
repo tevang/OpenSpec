@@ -44,6 +44,7 @@ describe('tool-detection', () => {
       expect(SKILL_NAMES).toContain('openspec-onboard');
       expect(SKILL_NAMES).toContain('openspec-propose');
       expect(SKILL_NAMES).toContain('openspec-autonomous-apply');
+      expect(SKILL_NAMES).toContain('openspec-multi-model-apply');
     });
   });
 

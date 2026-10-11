@@ -34,9 +34,10 @@ export const ALL_WORKFLOWS = [
   // only via a custom profile that explicitly selects it (opt-in, heavyweight).
   'autonomous-apply',
   // Skills-only workflow: split model roles (free e-INFRA implementation +
-  // independent cloud reviewers), sequential multi-change loop, per-change
-  // merge gate. Opt-in like autonomous-apply; requires per-host subagents
-  // with pinned models (e.g. ~/.config/opencode/agents/).
+  // independent reviewers user-selected from any provider mix — e-INFRA-only
+  // allowed), sequential multi-change loop, per-change merge gate. Opt-in
+  // like autonomous-apply; requires per-host subagents with pinned models
+  // (e.g. ~/.config/opencode/agents/).
   'multi-model-apply',
 ] as const;
 

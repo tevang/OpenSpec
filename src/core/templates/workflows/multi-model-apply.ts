@@ -109,7 +109,7 @@ Equivalent agents via Codex's agent configuration with a pinned model per role a
 ## Phase 0 — Run Preflight (once, before any change)
 
 1. **Role discovery + verification.** List implementer candidates (agent files whose name matches \`*implementer*\` at the host path) and reviewer candidates (\`*reviewer*\`). For each: file exists, frontmatter parses, \`model:\` present, and the pinned model ID appears in the host model list (OpenCode: \`opencode models\`). Missing or unparsable required files → stop and print the file template. Unknown model ID → ask user to fix frontmatter.
-2. **Role selection.** If several implementers exist → ask which one (must pin an e-INFRA/free route; if unclear, confirm with the user). Present the reviewer fleet with each pinned model and ask: "Use which reviewers this run? (pick at least 2)". Default suggestion: all verified reviewers, or the user's standing preference if stated. Warn if any selected reviewer pins the implementer's exact model ID.
+2. **Role selection.** If fewer than TWO reviewer candidates were discovered in step 1, stop preflight now and print the reviewer file template from Host Agent Wiring (see the 'Missing role wiring' scenario) — do not continue to the probes. If several implementers exist → ask which one (must pin an e-INFRA/free route; if unclear, confirm with the user). Present the reviewer fleet with each pinned model and ask: "Use which reviewers this run? (pick at least 2)". Default suggestion: all verified reviewers, or the user's standing preference if stated. Warn if any selected reviewer pins the implementer's exact model ID.
 3. **Role probes (billing check).** Before anything else runs, probe each selected role with a trivial call ("reply with one word: online" — reviewers keep their read-only constraints). On a billing/credit failure: STOP, name the agent and model, and apply the **no silent substitution** rule — ask the user: substitute with the latest free e-INFRA \`glm\` (or another free e-INFRA model), pick a different existing reviewer, drop this reviewer (only if ≥2 remain), or abort. File edits take effect only in a NEW host session — if bindings changed, instruct the user to restart the session before continuing, and record the pending decision in run-state so resume picks it up.
 4. **Report bindings.** Tell the user the resolved mapping (implementer → X; reviewers → Y, Z, ...) and restate the cost rule (implementation always e-INFRA; reviewers read-only). If \`agent.max_parallel_requests\` is unset, ask the concurrency question once here.
 5. **Change sequence.** Run \`openspec list --json\`; select changes with unfinished tasks. Read each \`proposal.md\` (and spec deltas where cheap) to detect spec-stated dependencies ("Depends on", cross-change references). Propose an ordered run plan; ask the user to confirm or reorder. The confirmed order is binding for the run and works for any number of changes in any project.
@@ -140,7 +140,12 @@ Equivalent agents via Codex's agent configuration with a pinned model per role a
 
 1. \`git fetch <remote>\`; base = remote tip of the base branch.
 2. Create worktree: \`git worktree add <worktree-root>/openspec-<change-name>/ -b feat/<change-name> <base-ref>\`. Host-appropriate root: \`.claude/worktrees/\` on Claude Code, \`.agents/worktrees/\` on Codex, \`.opencode/worktrees/\` on OpenCode.
-3. Record \`<worktree-root>/openspec-<change-name>/.openspec-autonomous.json\` and update the run-state entry for this change.
+3. Record the per-worktree scratch file \`<worktree-root>/openspec-<change-name>/.openspec-multi-model.json\` and update the run-state entry for this change:
+   \`\`\`json
+   { "change": "<change-name>", "branch": "feat/<change-name>",
+     "implementer": "<agent-file-name>", "reviewers": ["<agent-file-name>", "..."],
+     "run_plan_position": <i>, "created_at": "<ISO-8601>" }
+   \`\`\`
 4. Worktree creation fails → document container fallback and stop unless user approves proceeding read-only.
 
 ### Phase 3 — Implementation (implementation role ONLY)
@@ -159,7 +164,7 @@ Per round:
 
 1. Build the review packet: \`git diff <merge-base>...HEAD\` inside the worktree, changed-file list, and proposal + spec-delta excerpts. Diff too large for a prompt → deliver per-file diffs or name changed files and let reviewers read them from the worktree path.
 2. Spawn **each selected reviewer** in its own fresh context with the identical packet. Chunked by the concurrency cap (default sequential).
-3. Collect all reports verbatim. Orchestrator performs only mechanical checks (do the cited files/lines exist?) and deduplicates overlapping findings across reviewers. No content judgment.
+3. Collect all reports verbatim. Orchestrator performs only mechanical checks (do the cited files/lines exist?) and groups findings only when they are exact duplicates (identical file:line and substance); every distinct finding's full text MUST reach the implementer verbatim. No content judgment.
 4. All verdicts APPROVE and zero findings → Phase 6.
 5. Otherwise: spawn the implementer with all findings verbatim and "address each, or rebut with file/line evidence, then rerun the offline checks."
 6. A reviewer failing mid-phase (billing, persistent errors) → apply the **no silent substitution** rule: pause the run, record state, ask the user, resume after the decision (new session if bindings changed).
@@ -170,7 +175,7 @@ Per round:
 \`\`\`bash
 openspec validate <change-name>
 \`\`\`
-Must be clean. Failures go back to the implementer (counts as a review round).
+Must be clean. Validation failures go back to the implementer, and the change then re-enters Phase 5 for a new review round — that round counts against Phase 5's cap of 3.
 
 ### Phase 7 — Push, PR, PR Review Loop, CI Gate
 
@@ -178,7 +183,7 @@ Must be clean. Failures go back to the implementer (counts as a review round).
 2. **PR review rounds (cap 3):** \`gh pr diff <n>\` → same reviewer protocol as Phase 5 (fresh contexts, identical packet, verbatim findings) → implementer fixes → push (PR updates) → confirm CI reran for the new push → next round.
 3. **CI gate** — ALL must hold before asking for merge approval:
    - \`gh pr checks <n>\`: no failures, nothing pending.
-   - Each PR-skipped job (Phase 0.7): \`gh run list --branch feat/<change-name> --event push --limit 3\` shows it **passed on this branch**. If no passing non-PR run: dispatch \`gh workflow run "<name>" --ref feat/<change-name>\` where \`workflow_dispatch\` exists and watch it; else run the documented local fallback command (e.g. from \`AGENTS.md\`) in the worktree. Any failure → implementer fixes → push (counts against the round cap).
+   - Each PR-skipped job (Phase 0.7): \`gh run list --branch feat/<change-name> --event push --limit 3\` shows it **passed on this branch**. If no passing non-PR run: dispatch \`gh workflow run "<name>" --ref feat/<change-name>\` where \`workflow_dispatch\` exists and watch it; else run the documented local fallback command (e.g. from \`AGENTS.md\`) in the worktree. Any failure → implementer fixes → push (counts against Phase 7's round cap, cap 3).
    - \`openspec validate <change-name>\` still clean.
 4. **Merge approval gate (only question in the loop besides escalation):** present PR URL, the full checks table, passing-run evidence for PR-skipped jobs (workflow + run IDs), review summary (rounds, findings per reviewer, final verdicts), files changed. Ask: "Merge PR #n into <base>? yes / no". No → stop the run, record the user's note in run-state, leave branch and PR untouched.
 
