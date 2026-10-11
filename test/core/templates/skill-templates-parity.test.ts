@@ -62,7 +62,7 @@ const EXPECTED_FUNCTION_HASHES: Record<string, string> = {
   getOpsxVerifyCommandTemplate: '1efcf7eff0671f48e9d9420f50865c563dd3079ee60f8c380bb7a90dd0102696',
   getOpsxProposeSkillTemplate: '63b80eb0ef9bb40860736ff97021551c5df319fcd8c93f48163ce308d0ffce3a',
   getAutonomousApplySkillTemplate: '245cb2055c8f73873b863442af367d7fb0b8f698e772610f383c6cdc787bc87a',
-  getMultiModelApplySkillTemplate: 'd5efe72024102cd9e4d175334e2ef66431c7369835c2753d076ebb62e28180c6',
+  getMultiModelApplySkillTemplate: '6865026a132d3756e5cb887911ebd2e9ee4880f62f868c18b8638f95ce8f7529',
   getOpsxProposeCommandTemplate: 'd9c79d2a787698a1bfd2a5c9d30bb1a11b1136e638c8854544004cd054fb0455',
   getFeedbackSkillTemplate: 'dabeb5e825b9349abc8156c3e7b8608f27987912a6d9bf47ef29addde6138133',
   getUpdateChangeSkillTemplate: '7dc8abc6f64c58bf34d7581ed4ab095a3b7a53cb372349bee2d840db58622819',
@@ -71,7 +71,7 @@ const EXPECTED_FUNCTION_HASHES: Record<string, string> = {
 
 const EXPECTED_GENERATED_SKILL_CONTENT_HASHES: Record<string, string> = {
   'openspec-autonomous-apply': 'ab5b5ac911169da33b0b12f826b99288cbb41419facf9af93ea0e1ce4b9503c6',
-  'openspec-multi-model-apply': 'f9f7ee4faa6a11fded2028adb0cbf7214814a313bc0854418e01f20adf0e555d',
+  'openspec-multi-model-apply': '37de6b564c7e31ae52e5a524284858d6c6d4cb15721deedaac30be49f36fc47b',
   'openspec-explore': '886680e71f2900378bd12bb9ff25c888a41a8f851e0bb3ec056affcc18d07ca8',
   'openspec-new-change': 'ec4529beef978e34634a6f7286fab55d68fad8fb374dceb45691d52caab33fbb',
   'openspec-continue-change': 'bb6194a16c54891cdb253678e8f70ce53b2af86735243980f366ce551d37e42e',
