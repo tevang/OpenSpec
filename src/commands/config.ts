@@ -97,6 +97,10 @@ export const WORKFLOW_PROMPT_META: Record<string, WorkflowPromptMeta> = {
     name: 'Autonomous apply',
     description: 'Fully autonomous propose→apply→review→merge loop (sandboxed, opt-in)',
   },
+  'multi-model-apply': {
+    name: 'Multi-model apply',
+    description: 'Sequential changes: free e-INFRA model implements; ≥2 user-selected independent reviewers (any provider mix); CI gate + gated merge',
+  },
 };
 
 

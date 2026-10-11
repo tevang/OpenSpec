@@ -39,6 +39,7 @@ export const WORKFLOW_TO_SKILL_DIR: Record<WorkflowId, string> = {
   'onboard': 'openspec-onboard',
   'propose': 'openspec-propose',
   'autonomous-apply': 'openspec-autonomous-apply',
+  'multi-model-apply': 'openspec-multi-model-apply',
 };
 
 function toKnownWorkflows(workflows: readonly string[]): WorkflowId[] {

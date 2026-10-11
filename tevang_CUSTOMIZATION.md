@@ -13,6 +13,29 @@ bullets, requirements, scenarios, or tasks. Concision comes from removing
 repetition, misplaced implementation detail, and unnecessary explanation;
 completeness takes priority.
 
+## Fork-added workflow skills
+
+This fork also ships two **opt-in** workflows that upstream does not have
+(both registered in `ALL_WORKFLOWS` but excluded from the `core` profile, so
+they install only when explicitly listed in a custom profile):
+
+- `autonomous-apply` (`openspec-autonomous-apply`) — fully autonomous
+  propose→apply→review→merge loop with worktree containment, bounded
+  concurrency, and a human merge gate.
+- `multi-model-apply` (`openspec-multi-model-apply`) — sequential multi-change
+  apply with split model roles: a free e-INFRA model implements everything;
+  two or more user-selected reviewers (any provider mix: e-INFRA, Anthropic,
+  OpenAI) review independently, read-only; PR review rounds, a CI gate
+  covering PR-skipped jobs, and per-change user merge approval. Model binding
+  lives in per-host role agent files (`~/.config/opencode/agents/*implementer*.md`,
+  `*-reviewer.md`); billing failures surface a substitution prompt, never a
+  silent swap. See `docs/install-opencode.md`.
+
+Both have their generated copies committed under `skills/`; regenerate with
+`pnpm build && pnpm generate:skills && pnpm regen:parity-hashes` after
+template edits.
+
+
 ## Usage
 
 In a project's `openspec/config.yaml`, select the workflow by default:
