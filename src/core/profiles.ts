@@ -33,6 +33,11 @@ export const ALL_WORKFLOWS = [
   // absent from getCommandTemplates() and the default 'core' profile. Installed
   // only via a custom profile that explicitly selects it (opt-in, heavyweight).
   'autonomous-apply',
+  // Skills-only workflow: split model roles (free e-INFRA implementation +
+  // independent cloud reviewers), sequential multi-change loop, per-change
+  // merge gate. Opt-in like autonomous-apply; requires per-host subagents
+  // with pinned models (e.g. ~/.config/opencode/agents/).
+  'multi-model-apply',
 ] as const;
 
 export type WorkflowId = (typeof ALL_WORKFLOWS)[number];

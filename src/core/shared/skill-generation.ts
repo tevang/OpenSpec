@@ -18,6 +18,7 @@ import {
   getOnboardSkillTemplate,
   getOpsxProposeSkillTemplate,
   getAutonomousApplySkillTemplate,
+  getMultiModelApplySkillTemplate,
   getOpsxExploreCommandTemplate,
   getOpsxNewCommandTemplate,
   getOpsxContinueCommandTemplate,
@@ -72,6 +73,7 @@ export function getSkillTemplates(workflowFilter?: readonly string[]): SkillTemp
     { template: getOnboardSkillTemplate(), dirName: 'openspec-onboard', workflowId: 'onboard' },
     { template: getOpsxProposeSkillTemplate(), dirName: 'openspec-propose', workflowId: 'propose' },
     { template: getAutonomousApplySkillTemplate(), dirName: 'openspec-autonomous-apply', workflowId: 'autonomous-apply' },
+    { template: getMultiModelApplySkillTemplate(), dirName: 'openspec-multi-model-apply', workflowId: 'multi-model-apply' },
   ];
 
   if (!workflowFilter) return all;

@@ -8,9 +8,9 @@ import {
 
 describe('skill-generation', () => {
   describe('getSkillTemplates', () => {
-    it('should return all 13 skill templates', () => {
+    it('should return all 14 skill templates', () => {
       const templates = getSkillTemplates();
-      expect(templates).toHaveLength(13);
+      expect(templates).toHaveLength(14);
     });
 
     it('should have unique directory names', () => {

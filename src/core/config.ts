@@ -14,6 +14,7 @@ export const OPENSPEC_SKILL_NAMES = [
   'openspec-onboard',
   'openspec-propose',
   'openspec-autonomous-apply',
+  'openspec-multi-model-apply',
 ] as const;
 
 export const OPENSPEC_MARKERS = {
