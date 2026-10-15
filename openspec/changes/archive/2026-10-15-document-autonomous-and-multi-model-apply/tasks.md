@@ -36,7 +36,7 @@
 
 ## 7. Merge
 
-- [ ] 7.1 Commit the change folder alongside the docs edits on `docs/autonomous-and-multi-model-apply` and push.
-- [ ] 7.2 Open the pull request; wait for CI to pass.
-- [ ] 7.3 Merge to `main`, update the local main, check off this task.
-- [ ] 7.4 Archive this change (`openspec archive document-autonomous-and-multi-model-apply`) and commit the archive on `main`.
+- [x] 7.1 Commit the change folder alongside the docs edits on `docs/autonomous-and-multi-model-apply` and push.
+- [x] 7.2 Open the pull request; wait for CI to pass.
+- [x] 7.3 Merge to `main`, update the local main, check off this task.
+- [x] 7.4 Archive this change (`openspec archive document-autonomous-and-multi-model-apply`) and commit the archive on `main`.
