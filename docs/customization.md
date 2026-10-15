@@ -18,6 +18,7 @@ The `openspec/config.yaml` file is the easiest way to customize OpenSpec for you
 - **Inject project context** - AI sees your tech stack, conventions, etc.
 - **Add per-artifact rules** - Custom rules for specific artifacts
 - **Add per-operation guidance** - Advisory preferences for apply and archive work
+- **Cap apply concurrency** - Set the limit the `autonomous-apply` and `multi-model-apply` skills run under
 - **Remember integration choices** - e.g. the [GitHub Copilot cloud coding agent](supported-tools.md#github-copilot-cloud-coding-agent) opt-in
 
 ### Quick Setup
@@ -58,6 +59,12 @@ operations:
 # cloud coding agent; controls whether `init`/`update` generate its files.
 githubCopilot:
   cloudAgent: false
+
+# Cap on concurrent LLM API calls from the autonomous-apply and
+# multi-model-apply skills. Integer 1-4; default 2 when unset.
+# Values outside the range are ignored with a warning.
+agent:
+  max_parallel_requests: 2
 ```
 
 ### How It Works

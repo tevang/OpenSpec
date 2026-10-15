@@ -165,13 +165,13 @@ openspec --version
 
 Once the base install is in place, pick the guide for the AI assistant you actually use to learn how each tool exposes OpenSpec:
 
-- [Claude Code](install-claude-code.md) — `/openspec-autonomous-apply`, `.claude/skills/`, worktree isolation via `Agent(isolation="worktree")`
-- [Codex](install-codex.md) — `openspec-autonomous-apply`, `.agents/skills/`, manual worktree discipline, chunked subagent cap
-- [OpenCode](install-opencode.md) — `openspec-autonomous-apply`, `.opencode/skills/`, `opencode.json` skills path registration, manual worktree discipline
+- [Claude Code](install-claude-code.md): `/openspec-autonomous-apply` and `/openspec-multi-model-apply`, `.claude/skills/`, worktree isolation via `Agent(isolation="worktree")`
+- [Codex](install-codex.md): `openspec-autonomous-apply` and `openspec-multi-model-apply`, `.agents/skills/`, manual worktree discipline, chunked subagent cap
+- [OpenCode](install-opencode.md): `openspec-autonomous-apply` and `openspec-multi-model-apply`, `.opencode/skills/`, `opencode.json` skills path registration, manual worktree discipline
 
-**The autonomous-apply skill is opt-in**: it is registered but excluded from the default `core` workflow profile, so a plain `openspec init` does *not* deploy it. Each assistant guide above explains how to enable it with the `custom` profile (`~/.config/openspec/config.json`, selecting `"autonomous-apply"` in `workflows`).
+**Both heavyweight skills are opt-in**: `autonomous-apply` and `multi-model-apply` are registered but excluded from the default `core` workflow profile, so a plain `openspec init` does *not* deploy them. Each assistant guide above explains how to enable them with the `custom` profile (`~/.config/openspec/config.json`, selecting the workflow IDs in `workflows`).
 
->**When to use autonomous-apply vs standard apply**: use the standard `/opsx:propose` + `/opsx:apply` flow for one-shot, human-reviewed implementation of small changes. Use `openspec-autonomous-apply` when you want the full loop — worktree sandboxing, bounded-concurrency implementation, a reference-run validation loop against a real dataset/command, local multi-agent review, and an interactive review-mode/merge-strategy gate — for medium-to-large changes. The two flows are not mutually exclusive.
+>**When to use autonomous-apply vs standard apply**: use the standard `/opsx:propose` + `/opsx:apply` flow for one-shot, human-reviewed implementation of small-to-medium changes. Use `openspec-autonomous-apply` for medium-to-large changes when you want the full loop: worktree sandboxing, bounded-concurrency implementation, a reference-run validation loop against a real dataset/command, local multi-agent review, and an interactive review-mode/merge-strategy gate. The two flows are not mutually exclusive. For a *sequence* of changes where a free model should implement and independent models you pick should review, use `openspec-multi-model-apply`: one PR per change, each ending at your explicit merge approval.
 
 The assistant-specific guides also document the `agent.max_parallel_requests` project-config setting (default 2, hard maximum 4 for e-INFRA API users).
 

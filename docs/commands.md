@@ -35,6 +35,15 @@ for your tool. The files OpenSpec generates already use the right form.
 
 The default global profile is `core`. To enable expanded workflow commands, run `openspec config profile`, select workflows, then run `openspec update` in your project.
 
+### Opt-in Heavyweight Workflows (skills only)
+
+| Skill | Purpose |
+|-------|---------|
+| `openspec-autonomous-apply` | Run one change from planning to merged and archived, autonomously, inside a worktree |
+| `openspec-multi-model-apply` | Run a sequence of changes: a free e-INFRA model implements, reviewer models you select verify |
+
+These install as skills only. No `/opsx:` command file is generated for them, and neither the `core` profile nor the expanded set includes them. Add `"autonomous-apply"` and `"multi-model-apply"` to the `workflows` list under a `custom` profile in `~/.config/openspec/config.json`, then run `openspec update` in your project.
+
 ---
 
 ## Command Reference
@@ -665,6 +674,107 @@ AI:  Welcome to OpenSpec!
 
 ---
 
+### `openspec-autonomous-apply`
+
+Take one proposed change from planning artifacts to a merged, archived change, autonomously. Implementation runs in a git worktree; the merge is a human gate.
+
+This is an opt-in skill, not a `/opsx:` command. Add `"autonomous-apply"` to the `workflows` list under a `custom` profile in `~/.config/openspec/config.json`, then run `openspec update`.
+
+**Invocation by tool:**
+
+| Tool | Invocation |
+|------|------------|
+| Claude Code | `/openspec-autonomous-apply` |
+| OpenCode | `/skill openspec-autonomous-apply` (or "use the openspec-autonomous-apply skill") |
+| Codex | "Run the OpenSpec autonomous-apply skill for my change." |
+
+**Arguments:**
+
+| Argument | Required | Description |
+|----------|----------|-------------|
+| `change-name` | No | Change to run, resolved with `openspec list --json` (changes with unfinished tasks). If several qualify, the skill asks which one; if none, it stops and points you to `openspec-propose` |
+
+**What it does:**
+
+- Isolates implementation in a git worktree (`<worktree-root>/openspec-<change-name>/`, branch `feat/<change-name>`). The main checkout and `$HOME` stay read-only
+- Caps concurrent LLM calls at `agent.max_parallel_requests` (default 2, hard max 4, see Configuration)
+- If the proposal declares a reference command and dataset, runs a detached validation loop: run, inspect every artifact, classify in-scope vs out-of-scope, fix one defect, rerun until clean
+- Fans out bounded local reviewers (correctness, security, plus optional slots) and gets a second opinion on every non-trivial finding
+- Runs `openspec validate <change-name>` and requires a clean result before the merge gate
+
+**Gates and outcome:**
+
+- Asks two sequential gates: review mode (local agentic reviewers, built-in code-review, existing PR reviewer, or manual), then merge strategy (create PR and wait, create PR and auto-merge, or push only). Nothing merges without an explicit choice
+- After merge: archives the change, removes the worktree and branch, prints a summary
+
+**Configuration:**
+
+```yaml
+# openspec/config.yaml
+agent:
+  max_parallel_requests: 2  # integer 1-4, default 2 when unset
+```
+
+**Tips:**
+
+- Use `/opsx:apply` for small-to-medium changes you want to steer as they happen; this skill is for medium-to-large changes
+- The worktree root follows the host: `.claude/worktrees/` on Claude Code, `.agents/worktrees/` on Codex, `.opencode/worktrees/` on OpenCode
+- Per-tool setup and behavior notes: [Claude Code](install-claude-code.md), [Codex](install-codex.md), [OpenCode](install-opencode.md)
+- Choosing between it, `openspec-multi-model-apply`, and standard apply: [Workflows](workflows.md#autonomous-and-multi-model-apply-opt-in)
+
+---
+
+### `openspec-multi-model-apply`
+
+Run a **sequence** of proposed changes from planning to merged, archived pull requests, splitting work across model roles. A free e-INFRA model implements everything; two or more reviewer models you select at launch (any provider mix) review independently; every change ends at an explicit per-change merge approval.
+
+This is an opt-in skill, not a `/opsx:` command. It requires a host that can pin a model per subagent. Add `"multi-model-apply"` to the `workflows` list under a `custom` profile in `~/.config/openspec/config.json`, then run `openspec update`.
+
+**Invocation by tool:**
+
+| Tool | Invocation |
+|------|------------|
+| Claude Code | `/openspec-multi-model-apply` |
+| OpenCode | `/skill openspec-multi-model-apply` (or "use the openspec-multi-model-apply skill") |
+| Codex | "Run the OpenSpec multi-model-apply skill for my changes." |
+
+**Prerequisite: role agent files.**
+
+Model binding lives only in host agent files, one role per file. The skill discovers roles by file-name convention (`*implementer*`, `*-reviewer*`) and never pins a model itself.
+
+| Host | Location |
+|------|----------|
+| OpenCode | `~/.config/opencode/agents/` (global) or `.opencode/agents/` (project) |
+| Claude Code | `~/.claude/agents/` with `model:` frontmatter and read-only tool restriction for reviewers |
+| Codex | Codex agent configuration with a pinned model per role and read-only reviewers |
+
+If role files are missing or unparsable, the skill stops at preflight and prints the file templates.
+
+**What it does:**
+
+- Preflight, once: verifies role files, probes each selected role for billing failures, has you pick at least two reviewers, proposes a dependency-ordered plan over all pending changes, discovers the repo's CI-skip policy, and asks for one confirmation before the run starts
+- Per change: worktree, implementer-role apply, up to three rounds of independent review (fresh isolated context per reviewer; reviewers never see each other's findings), `openspec validate`, push and PR, up to three rounds of PR review, CI gate, then your explicit merge approval
+- The CI gate requires evidence for jobs skipped on pull requests: a passing run on the branch, a workflow dispatch, or a documented local fallback
+- Writes run state to `<worktree-root>/multi-model-run.json`, so an interrupted run can resume from the next change
+- After each merge: archives the change, removes the worktree and branch, and cuts the next worktree from the freshly pulled base branch
+
+**Merge gate:**
+
+Merges are never automatic. A "no" at the merge gate stops the run and leaves the branch and PR untouched.
+
+**Configuration:**
+
+Same `agent.max_parallel_requests` block as `openspec-autonomous-apply`. This skill reads no model configuration from `openspec/config.yaml`; models live only in the host agent files, so you switch models or reviewer composition without touching OpenSpec.
+
+**Tips:**
+
+- The reviewer fleet is the menu: add a `*-reviewer` agent file to offer another model; change one frontmatter line to change a pinned model
+- A billing or credit failure stops the run, names the failed agent and model, and asks for a replacement. The skill never substitutes silently
+- A reviewer pinned to the implementer's exact model defeats independent review; preflight warns if it detects one
+- Full behavior contract and phases: [OpenCode guide](install-opencode.md#the-openspec-multi-model-apply-skill-opt-in-opencode-heavyweight)
+
+---
+
 ## Command Syntax by AI Tool
 
 Different AI tools use slightly different command syntax. Use the format that matches your tool:
@@ -681,6 +791,10 @@ Different AI tools use slightly different command syntax. Use the format that ma
 > Devin Desktop `/opsx-propose`. Devin Local has no workflows — use the skills
 > OpenSpec writes to `.devin/skills/`, e.g. `/openspec-propose`, which work on
 > both agents.
+
+> **Skills-only workflows:** `openspec-autonomous-apply` and
+> `openspec-multi-model-apply` generate no command file in any tool. Invoke them
+> by skill name, per the invocation tables in their reference sections above.
 
 The intent is the same across tools, but how commands are surfaced can differ by integration. [How To Invoke](supported-tools.md#how-to-invoke) lists every supported tool; this table shows only examples of each shape.
 
