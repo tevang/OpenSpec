@@ -222,7 +222,7 @@ OpenSpec installs workflow artifacts based on selected workflows:
 
 - **Core profile (default):** `propose`, `explore`, `apply`, `update`, `sync`, `archive`
 - **Custom selection:** any subset of all workflow IDs:
-  `propose`, `explore`, `new`, `continue`, `apply`, `update`, `ff`, `sync`, `archive`, `bulk-archive`, `verify`, `onboard`
+  `propose`, `explore`, `new`, `continue`, `apply`, `update`, `ff`, `sync`, `archive`, `bulk-archive`, `verify`, `onboard`, plus the opt-in skills-only IDs `autonomous-apply` and `multi-model-apply`
 
 In other words, skill/command counts are profile-dependent and delivery-dependent, not fixed.
 
@@ -242,6 +242,8 @@ When selected by profile/workflow config, OpenSpec generates these skills:
 - `openspec-bulk-archive-change`
 - `openspec-verify-change`
 - `openspec-onboard`
+- `openspec-autonomous-apply` (opt-in)
+- `openspec-multi-model-apply` (opt-in)
 
 See [Commands](commands.md) for command behavior and [CLI](cli.md) for `init`/`update` options.
 

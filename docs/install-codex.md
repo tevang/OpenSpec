@@ -55,6 +55,28 @@ Invoke it as a project skill:
 
 - **Review mode / merge strategy**: the skill uses sequential question prompts, identical to Claude Code — review mode first, then merge strategy.
 
+## The `openspec-multi-model-apply` Skill (opt-in)
+
+A sibling skill that runs a **sequence** of changes with split model roles: a free e-INFRA model implements everything, **two or more reviewers you select at launch** (any provider mix) review independently, and every change ends at an explicit user merge approval after PR review rounds and a CI gate that requires evidence for CI jobs skipped on pull requests.
+
+It is opt-in like `autonomous-apply`: add `"multi-model-apply"` to the `workflows` list above and re-run `openspec update`.
+
+### Required: role agents (the fleet)
+
+Model binding lives **only** in Codex agent configuration: one agent per role with a pinned model, discovered by file-name convention (`*implementer*`, `*-reviewer*`). The skill never names a model itself. Reviewer agents are read-only: they produce findings and never edit.
+
+- The **fleet is the menu**: offer another reviewer model by adding another `*-reviewer` agent; change a model in the agent configuration. The skill is never modified for model changes.
+- At preflight the skill verifies the roles, probes each selected one, and asks which **2 or more reviewers** to use this run. The implementer is always e-INFRA.
+- **Billing failures**: on an out-of-credit error the skill stops, names the failed agent and model, and asks for a replacement. It never substitutes silently.
+
+Invoke it as a project skill:
+
+> "Run the OpenSpec multi-model-apply skill for my changes."
+
+Worktree discipline matches `autonomous-apply` in Codex: each subagent `cd`s into `.agents/worktrees/openspec-<change-name>/` before any file operation, and run state lives in `.agents/worktrees/multi-model-run.json`.
+
+Full reference: [Commands](commands.md#openspec-multi-model-apply).
+
 ## Making It Project-Local (Recommended)
 
 Committing `.agents/skills/` and `openspec/` means every Codex contributor gets identical skill behavior. The profile config (`~/.config/openspec/config.json`) is per-user; document the custom-profile snippet in your contributor guide if you want `autonomous-apply` for everyone.

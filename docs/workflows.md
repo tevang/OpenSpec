@@ -151,6 +151,8 @@ openspec config profile
 openspec update
 ```
 
+Beyond that list, two opt-in heavyweight skills (`openspec-autonomous-apply`, `openspec-multi-model-apply`) are available through the same `custom` profile. See [Autonomous and Multi-Model Apply](#autonomous-and-multi-model-apply-opt-in).
+
 ## Workflow Patterns (Expanded Mode)
 
 ### Quick Feature
@@ -401,6 +403,27 @@ AI:  ✓ Synced specs to openspec/specs/auth/spec.md
 
 Archive will prompt if specs aren't synced. It won't block on incomplete tasks, but it will warn you.
 
+## Autonomous and Multi-Model Apply (opt-in)
+
+`/opsx:apply` is interactive: you drive, it works the tasks, you review. Two opt-in skills automate the span from apply to archive further. Both are skills only (no `/opsx:` command file) and neither is in the `core` or expanded profile sets. Add their IDs (`"autonomous-apply"`, `"multi-model-apply"`) to the `workflows` list under a `custom` profile in `~/.config/openspec/config.json`, then run `openspec update`.
+
+| | `/opsx:apply` | `openspec-autonomous-apply` | `openspec-multi-model-apply` |
+|---|---|---|---|
+| Changes per run | one | one | a sequence, one PR each |
+| Where code lands | your checkout | a git worktree | a git worktree per change |
+| Who implements | your session's assistant | an implementation subagent | a free e-INFRA model (the implementer role) |
+| Who reviews | you | bounded local reviewer fan-out, then you at the merge gate | two or more reviewer models you select at launch, then you at the merge gate |
+| Merge | you do it | only after you pick a review mode and a merge strategy | never automatic; explicit per-change yes |
+| Extra setup | none | none | role agent files with pinned models |
+
+### Choosing between them
+
+- **`/opsx:apply`** for small-to-medium changes you want to steer and review as they happen.
+- **`openspec-autonomous-apply`** for one medium-to-large change: worktree isolation, bounded concurrency, an optional reference-run validation loop, local multi-agent review, and a merge gate you control.
+- **`openspec-multi-model-apply`** for a queue of pending changes: a free e-INFRA model implements, independent reviewers you select check each change, and each change ends at your merge approval after PR review rounds and a CI gate.
+
+Both heavyweight skills read `agent.max_parallel_requests` from `openspec/config.yaml` (default 2, hard max 4). The multi-model skill reads no model configuration from that file; models are pinned in the host agent files, one role per file. Full reference: [Commands](commands.md#openspec-autonomous-apply).
+
 ## When to Use What
 
 ### `/opsx:ff` vs `/opsx:continue`
@@ -541,6 +564,8 @@ For full command details and options, see [Commands](commands.md).
 | `/opsx:sync` | Merge delta specs | Expanded mode, optional |
 | `/opsx:archive` | Complete the change | All work finished |
 | `/opsx:bulk-archive` | Archive multiple changes | Expanded mode, parallel work |
+| `openspec-autonomous-apply` | Run one change to merged and archived, autonomously | Opt-in (`custom` profile), medium-to-large single change |
+| `openspec-multi-model-apply` | Run a sequence of changes with split model roles | Opt-in (`custom` profile), queue of pending changes |
 
 ## Next Steps
 

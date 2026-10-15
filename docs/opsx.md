@@ -65,7 +65,7 @@ openspec init
 
 This creates skills in `.claude/skills/` (or equivalent) that AI coding assistants auto-detect.
 
-By default, OpenSpec uses the `core` workflow profile (`propose`, `explore`, `apply`, `update`, `sync`, `archive`). If you want the expanded workflow commands (`new`, `continue`, `ff`, `verify`, `bulk-archive`, `onboard`), configure them with `openspec config profile` and apply with `openspec update`.
+By default, OpenSpec uses the `core` workflow profile (`propose`, `explore`, `apply`, `update`, `sync`, `archive`). If you want the expanded workflow commands (`new`, `continue`, `ff`, `verify`, `bulk-archive`, `onboard`), configure them with `openspec config profile` and apply with `openspec update`. Two opt-in skills, `autonomous-apply` and `multi-model-apply`, are available beyond that list through the same `custom` profile. See [Commands](commands.md#openspec-autonomous-apply).
 
 During setup, you'll be prompted to create a **project config** (`openspec/config.yaml`). This is optional but recommended.
 
@@ -104,6 +104,7 @@ rules:
 | `schema` | string | Default schema for new changes (e.g., `spec-driven`) |
 | `context` | string | Project context injected into all artifact instructions |
 | `rules` | object | Per-artifact rules, keyed by artifact ID |
+| `agent.max_parallel_requests` | number (1-4) | Cap on concurrent subagent/LLM calls for the `autonomous-apply` and `multi-model-apply` skills. Default 2 when unset; values outside 1-4 are ignored with a warning |
 
 ### How It Works
 
@@ -169,6 +170,8 @@ rules:
 | `/opsx:archive` | Archive when done |
 | `/opsx:bulk-archive` | Archive multiple completed changes (expanded workflow) |
 | `/opsx:onboard` | Guided walkthrough of an end-to-end change (expanded workflow) |
+| `openspec-autonomous-apply` | Run one change to merged and archived, autonomously, in a worktree (opt-in skill) |
+| `openspec-multi-model-apply` | Run a sequence of changes with split model roles (opt-in skill) |
 
 ## Usage
 
